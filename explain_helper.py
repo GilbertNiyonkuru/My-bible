@@ -1,5 +1,5 @@
-import google.generativeai as genai
 import streamlit as st
+import google.generativeai as genai
 
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 
@@ -12,7 +12,7 @@ When given a Bible verse, respond with:
 """
 
 def explain_verse(reference, verse_text):
-    model = genai.GenerativeModel("gemini-pro")
-    prompt = f"{SYSTEM_PROMPT}\n\nReference: {reference}\nVerse: \"{verse_text}\""
-    response = model.generate_content(prompt)
+    model = genai.GenerativeModel(model_name="models/gemini-1.5-pro",
+                                  system_instruction=SYSTEM_PROMPT)
+    response = model.generate_content(f"Reference: {reference}\nVerse: \"{verse_text}\"")
     return response.text.strip()
