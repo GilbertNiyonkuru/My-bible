@@ -1,5 +1,7 @@
-import openai, os
-openai.api_key = os.getenv("OPENAI_API_KEY")
+import os
+from openai import OpenAI
+
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 SYSTEM = """You are a biblical scholar assistant.
 When given a verse reference and verse text, provide:
@@ -9,7 +11,7 @@ When given a verse reference and verse text, provide:
 4. A concise modern-day interpretation"""
 
 def explain_verse(ref, verse_text):
-    resp = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model="gpt-4",
         messages=[
             {"role": "system", "content": SYSTEM},
@@ -17,4 +19,4 @@ def explain_verse(ref, verse_text):
         ],
         temperature=0.7,
     )
-    return resp.choices[0].message.content.strip()
+    return response.choices[0].message.content.strip()
