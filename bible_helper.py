@@ -2,11 +2,21 @@ import requests
 
 BIBLE_API_URL = "https://biblebytopic.com/api/getversenkjv/{book}/{chapter}/{verse}"
 
-BOOK_NAME_TO_NUMBER = {
-    "john": 43,
-    "romans": 45,
+BOOK_NAME_TO_NUMBER = {BOOK_NAME_TO_NUMBER = {
+    "genesis": 1,
+    "exodus": 2,
+    "leviticus": 3,
+    "numbers": 4,
+    "deuteronomy": 5,
+    # ...
     "matthew": 40,
-    # … Extend as needed, mapping lowercase book name to number
+    "mark": 41,
+    "luke": 42,
+    "john": 43,
+    "acts": 44,
+    "romans": 45,
+    # ...
+    "revelation": 66,
 }
 
 def fetch_verse(ref):
