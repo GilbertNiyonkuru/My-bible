@@ -1,0 +1,28 @@
+import requests
+
+BIBLE_API_URL = "https://biblebytopic.com/api/getversenkjv/{book}/{chapter}/{verse}"
+
+BOOK_NAME_TO_NUMBER = {
+    "john": 43,
+    "romans": 45,
+    "matthew": 40,
+    # … Extend as needed, mapping lowercase book name to number
+}
+
+def fetch_verse(ref):
+    """
+    Retrieves verse text from Bible API.
+    ref = "John 3:16"
+    Returns verse text or None.
+    """
+    try:
+        book, chapv = ref.split()
+        chap, verse = chapv.split(":")
+        book_number = BOOK_NAME_TO_NUMBER[book.lower()]
+        url = BIBLE_API_URL.format(book=book_number, chapter=chap, verse=verse)
+        res = requests.get(url)
+        if res.status_code == 200:
+            return res.json().get("text")
+    except Exception:
+        pass
+    return None
