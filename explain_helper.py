@@ -1,10 +1,9 @@
 import streamlit as st
-import google.generativeai as genai
+import openai
 
-# ✅ Configure Gemini with your API key from Streamlit secrets
-genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+# Configure OpenAI API key from Streamlit secrets
+openai.api_key = st.secrets["OPENAI_API_KEY"]
 
-# 📜 System prompt to guide the AI
 SYSTEM_PROMPT = """You are a biblical scholar assistant.
 When given a Bible verse, respond with:
 1. Author of the book
@@ -13,25 +12,26 @@ When given a Bible verse, respond with:
 4. A clear interpretation for today
 """
 
-# ✅ Function to explain a Bible verse
 def explain_verse(reference, verse_text):
     try:
-        # 🧠 Load Gemini Pro model with system prompt
-        model = genai.GenerativeModel(
-            model_name="models/gemini-1.5-pro",  # Use gemini-1.5-flash if you want faster/cheaper
-            system_instruction=SYSTEM_PROMPT
+        messages = [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": f"Reference: {reference}\nVerse: \"{verse_text}\""}
+        ]
+        
+        response = openai.ChatCompletion.create(
+            model="gpt-4o-mini",  # or "gpt-4o" or "gpt-4" depending on your access
+            messages=messages,
+            max_tokens=500,
+            temperature=0.7,
         )
         
-        # 📤 Send prompt to Gemini
-        prompt = f"Reference: {reference}\nVerse: \"{verse_text}\""
-        response = model.generate_content(prompt)
-
-        return response.text.strip()
-
+        explanation = response['choices'][0]['message']['content'].strip()
+        return explanation
+    
     except Exception as e:
-        # ⚠️ Friendly error message if quota or API error occurs
         return (
             "⚠️ Sorry, we couldn't generate the explanation right now.\n"
-            "You may have exceeded your daily quota or there was a connection error.\n"
+            "You may have exceeded your quota or there was a connection error.\n"
             f"**Error**: {str(e)}"
         )
