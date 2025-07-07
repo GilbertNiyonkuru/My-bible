@@ -1,5 +1,5 @@
 import streamlit as st
-from helper import explain_verse
+from explain_helper import explain_verse
 
 st.title("Bible Verse Explainer")
 
