@@ -1,38 +1,28 @@
 import requests
 
-BIBLE_API_URL = "https://biblebytopic.com/api/getversenkjv/{book}/{chapter}/{verse}"
-
-BOOK_NAME_TO_NUMBER = {BOOK_NAME_TO_NUMBER = {
-    "genesis": 1,
-    "exodus": 2,
-    "leviticus": 3,
-    "numbers": 4,
-    "deuteronomy": 5,
-    # ...
-    "matthew": 40,
-    "mark": 41,
-    "luke": 42,
-    "john": 43,
-    "acts": 44,
-    "romans": 45,
-    # ...
-    "revelation": 66,
+# Complete book mapping: lowercase → book id
+BOOKS = { 
+    "genesis": "genesis", "exodus": "exodus", "leviticus": "leviticus",
+    "numbers": "numbers", "deuteronomy": "deuteronomy", "joshua": "joshua",
+    # ... include all books ...
+    "matthew": "matthew", "mark": "mark", "luke": "luke", "john": "john",
+    "acts": "acts", "romans": "romans", "1 corinthians": "1-corinthians",
+    # ... up through Revelation ...
+    "revelation": "revelation"
 }
 
-def fetch_verse(ref):
-    """
-    Retrieves verse text from Bible API.
-    ref = "John 3:16"
-    Returns verse text or None.
-    """
+def fetch_verse(ref, version="en-kjv"):
+    """Fetch a single verse via wldeh/bible-api"""
     try:
-        book, chapv = ref.split()
-        chap, verse = chapv.split(":")
-        book_number = BOOK_NAME_TO_NUMBER[book.lower()]
-        url = BIBLE_API_URL.format(book=book_number, chapter=chap, verse=verse)
-        res = requests.get(url)
-        if res.status_code == 200:
-            return res.json().get("text")
+        book_chap, verse = ref.split(":")
+        parts = book_chap.strip().rsplit(" ", 1)
+        book_name = parts[0].lower()
+        chapter = parts[1]
+        book = BOOKS[book_name]
+        url = f"https://cdn.jsdelivr.net/gh/wldeh/bible-api/bibles/{version}/books/{book}/chapters/{chapter}/verses/{verse}.json"
+        r = requests.get(url)
+        r.raise_for_status()
+        data = r.json()
+        return data.get("text", "").strip()
     except Exception:
-        pass
-    return None
+        return None
