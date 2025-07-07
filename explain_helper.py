@@ -1,37 +1,30 @@
 import streamlit as st
-import openai
+from openai import OpenAI
 
-# Configure OpenAI API key from Streamlit secrets
-openai.api_key = st.secrets["OPENAI_API_KEY"]
+openai_client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
-SYSTEM_PROMPT = """You are a biblical scholar assistant.
-When given a Bible verse, respond with:
-1. Author of the book
-2. Historical and cultural context
-3. Author’s intended meaning
-4. A clear interpretation for today
+SYSTEM_PROMPT = """
+You are a biblical scholar assistant.
+When given a Bible verse, please:
+1. Highlight the important words or phrases in the verse.
+2. Explain what each of these words or phrases means in a real-life, practical way.
+Respond clearly and simply.
 """
 
-def explain_verse(reference, verse_text):
+def explain_verse(verse_text):
     try:
         messages = [
             {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": f"Reference: {reference}\nVerse: \"{verse_text}\""}
+            {"role": "user", "content": f"Verse: \"{verse_text}\""}
         ]
-        
-        response = openai.ChatCompletion.create(
-            model="gpt-4o-mini",  # or "gpt-4o" or "gpt-4" depending on your access
+
+        response = openai_client.chat.completions.create(
+            model="gpt-4o-mini",
             messages=messages,
             max_tokens=500,
-            temperature=0.7,
+            temperature=0.7
         )
-        
-        explanation = response['choices'][0]['message']['content'].strip()
-        return explanation
-    
+        return response.choices[0].message.content.strip()
+
     except Exception as e:
-        return (
-            "⚠️ Sorry, we couldn't generate the explanation right now.\n"
-            "You may have exceeded your quota or there was a connection error.\n"
-            f"**Error**: {str(e)}"
-        )
+        return f"⚠️ Error: {str(e)}"
