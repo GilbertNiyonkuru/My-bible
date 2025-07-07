@@ -1,9 +1,9 @@
+import google.generativeai as genai
 import streamlit as st
-from openai import OpenAI
 
-client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 
-SYSTEM = """You are a biblical scholar assistant.
+SYSTEM_PROMPT = """You are a biblical scholar assistant.
 When given a Bible verse, respond with:
 1. Author of the book
 2. Historical and cultural context
@@ -12,12 +12,7 @@ When given a Bible verse, respond with:
 """
 
 def explain_verse(reference, verse_text):
-    response = client.chat.completions.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": SYSTEM},
-            {"role": "user", "content": f"Reference: {reference}\nVerse: \"{verse_text}\""}
-        ],
-        temperature=0.7,
-    )
-    return response.choices[0].message.content.strip()
+    model = genai.GenerativeModel("gemini-pro")
+    prompt = f"{SYSTEM_PROMPT}\n\nReference: {reference}\nVerse: \"{verse_text}\""
+    response = model.generate_content(prompt)
+    return response.text.strip()
